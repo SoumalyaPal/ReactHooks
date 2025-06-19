@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import {db} from "../firebaseInit";
-import { collection, addDoc, doc, setDoc} from "firebase/firestore"; 
+import { collection, doc, getDocs, setDoc} from "firebase/firestore"; 
 
 export default function Blog(){
 
@@ -12,22 +12,28 @@ export default function Blog(){
         titleRef.current.focus()
     },[]);
 
+    useEffect(() => {
+        async function fetchData(){
+            const snapShot =await getDocs(collection(db, "blogs"));
+            console.log(snapShot);
+
+            const blogs = snapShot.docs.map((doc) => {
+                return{
+                    id: doc.id,
+                    ...doc.data()
+                }
+            })
+            console.log(blogs);
+            setBlogs(blogs);
+        }
+        fetchData();
+    },[]);
+
     async function handleSubmit(e){
         e.preventDefault();
         titleRef.current.focus();
 
-        setBlogs([{title: formData.title,content:formData.content}, ...blogs]);
-
-        //addDoc either this way
-
-        //await addDoc(collection(db, "blogs"), {
-            // title: formData.title,
-            // content: formData.content,
-            // createdOn: new Date()
-        // })
-
-        //addDoc either this way
-        const docRef = doc(collection(db, "blogs"));
+        const docRef = doc(collection(db, "blogs"))
             
         await setDoc(docRef, {
                 title: formData.title,
