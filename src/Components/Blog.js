@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import {db} from "../firebaseInit";
-import { collection, doc, getDocs, setDoc} from "firebase/firestore"; 
+import {db} from "../firebase-init";
+import { collection, doc, getDocs, onSnapshot, setDoc} from "firebase/firestore"; 
 
 export default function Blog(){
 
@@ -13,20 +13,17 @@ export default function Blog(){
     },[]);
 
     useEffect(() => {
-        async function fetchData(){
-            const snapShot =await getDocs(collection(db, "blogs"));
-            console.log(snapShot);
 
+        const unsub =  onSnapshot(collection(db,"blogs"), (snapShot) => {
             const blogs = snapShot.docs.map((doc) => {
-                return{
-                    id: doc.id,
-                    ...doc.data()
-                }
-            })
-            console.log(blogs);
-            setBlogs(blogs);
-        }
-        fetchData();
+                    return{
+                        id: doc.id,
+                        ...doc.data()
+                    }
+                })
+                console.log(blogs);
+                setBlogs(blogs);
+        })
     },[]);
 
     async function handleSubmit(e){
@@ -40,6 +37,7 @@ export default function Blog(){
                 content: formData.content,
                 createdOn: new Date()
             });
+        
         setformData({title: "", content: ""});
     }
 
