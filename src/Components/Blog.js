@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import {db} from "../firebase-init";
-import { collection, doc, getDocs, onSnapshot, setDoc} from "firebase/firestore"; 
+import {db} from "../firebaseInit";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc} from "firebase/firestore"; 
 
 export default function Blog(){
 
@@ -41,9 +41,11 @@ export default function Blog(){
         setformData({title: "", content: ""});
     }
 
-    async function removeBlog(i){
+    async function removeBlog(id){
 
-        setBlogs( blogs.filter((blog,index)=> index !== i));
+        // setBlogs( blogs.filter((blog,index)=> index !== i));
+        const docRef = doc(db,"blogs",id);
+        await deleteDoc(docRef);
  
      }
 
@@ -81,7 +83,7 @@ export default function Blog(){
                 <p>{blog.content}</p>
                 <div className="blog-btn">
                         <button onClick={() => {
-                             removeBlog(i)
+                             removeBlog(blog.id)
                         }}
                         className="btn remove">
                             Delete
